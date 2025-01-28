@@ -2,12 +2,15 @@ const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
 const axios = require('axios');
 const dotenv = require('dotenv');
+const { type } = require('os');
 dotenv.config();
 
-const RECORD_TYPE = 'purchaserequisition'
-const RECORD_ID  = '570785'
-const METHOD = 'POST'
-const BODY = {
+const METHOD = 'GET'
+const GET_PARAMS = {
+  id: 570785,
+  type: 'purchaserequisition'
+}
+const POST_BODY = {
   id: '570785',
   type: 'purchaserequisition',
   fields: {
@@ -30,7 +33,10 @@ const consumerSecret = process.env.consumer_secret
 const tokenId = process.env.token_id
 const tokenSecret = process.env.token_secret
 const account = process.env.realm
-const url = `${process.env.domain}/app/site/hosting/restlet.nl?script=430&deploy=1&id=${RECORD_ID}&type=${RECORD_TYPE}`
+let url = `${process.env.domain}/app/site/hosting/restlet.nl?script=430&deploy=1`
+if(METHOD === 'GET') {
+  url += `&id=${GET_PARAMS.id}&type=${GET_PARAMS.type}`
+}
 
 const oauth = OAuth({
   consumer: {
@@ -73,7 +79,7 @@ if(METHOD === 'POST') {
     url: request_data.url,
     method: request_data.method, 
     headers: headers,
-    data: JSON.stringify(BODY)
+    data: JSON.stringify(POST_BODY)
   })
     .then(response => response.data)
     .then(result => console.log('result:', result))
