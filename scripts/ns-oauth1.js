@@ -4,14 +4,33 @@ const axios = require('axios');
 const dotenv = require('dotenv');
 dotenv.config();
 
+const RECORD_TYPE = 'purchaserequisition'
+const RECORD_ID  = '570785'
+const METHOD = 'POST'
+const BODY = {
+  id: '570785',
+  type: 'purchaserequisition',
+  fields: {
+    memo: "Updated memo 1",
+  },
+  sublists: [
+    {
+      sublistId: 'item',
+      data: [
+        {
+          custcol_bom_deptcode: '00011'
+        }
+      ]
+    }
+  ]
+}
+
 const consumerKey = process.env.consumer_key
 const consumerSecret = process.env.consumer_secret
 const tokenId = process.env.token_id
 const tokenSecret = process.env.token_secret
 const account = process.env.realm
-const url = `${process.env.domain}/app/site/hosting/restlet.nl?script=266&deploy=1&id=570785&type=purchaserequisition`
-const method = 'GET'
-
+const url = `${process.env.domain}/app/site/hosting/restlet.nl?script=430&deploy=1&id=${RECORD_ID}&type=${RECORD_TYPE}`
 
 const oauth = OAuth({
   consumer: {
@@ -27,7 +46,7 @@ const oauth = OAuth({
 
 const request_data = {
   url: url,
-  method: method
+  method: METHOD
 };
 
 const token = {
@@ -38,13 +57,25 @@ const token = {
 const headers = oauth.toHeader(oauth.authorize(request_data, token));
 headers['Content-Type'] = 'application/json';
 
+if(METHOD === 'GET') {
+  axios({
+    url: request_data.url,
+    method: request_data.method,
+    headers: headers,
+  })
+    .then(response => response.data)
+    .then(result => console.log(result))
+    .catch(error => console.error(error));
+}
 
-// Axios GET request
-axios({
-  url: request_data.url,
-  method: request_data.method,
-  headers: headers,
-})
-  .then(response => response.data)
-  .then(result => console.log(result))
-  .catch(error => console.error(error));
+if(METHOD === 'POST') {
+  axios({
+    url: request_data.url,
+    method: request_data.method, 
+    headers: headers,
+    data: JSON.stringify(BODY)
+  })
+    .then(response => response.data)
+    .then(result => console.log('result:', result))
+    .catch(error => console.error(error));
+}
